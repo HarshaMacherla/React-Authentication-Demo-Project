@@ -4,16 +4,19 @@ import Layout from "./components/Layout/Layout";
 import UserProfile from "./components/Profile/UserProfile";
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
+import { useState } from "react";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   return (
-    <Layout>
+    <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}>
       <Switch>
         <Route path="/" exact>
           <HomePage />
         </Route>
         <Route path="/auth">
-          <AuthPage />
+          <AuthPage isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
         </Route>
         <Route path="/profile">
           <UserProfile />

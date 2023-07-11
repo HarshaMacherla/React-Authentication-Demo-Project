@@ -1,12 +1,12 @@
-import { useRef, useState } from "react";
-import { Button } from "react-bootstrap";
+import { useState, useRef } from "react";
 
 import classes from "./AuthForm.module.css";
+import { Button } from "react-bootstrap";
 
-const AuthForm = () => {
+const AuthForm = ({ isLoggedIn, setIsLoggedIn }) => {
   const [isLogin, setIsLogin] = useState(true);
 
-  const [sendingSignUpRequest, setSendingSignUpRequest] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -15,87 +15,82 @@ const AuthForm = () => {
     setIsLogin((prevState) => !prevState);
   };
 
-  const handleCreateAccount = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setSendingSignUpRequest(true);
+    setIsLoading(true);
 
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
 
     try {
-      const response = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAvBSC-wnMSr4LTyhMGqXtQdczeBxPzacw",
-        {
-          method: "POST",
-          body: JSON.stringify({ email, password, returnSecureToken: true }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        if (!response.ok) {
-          const errorData = await response.json();
-          const errorMessage = errorData.error.message;
-          alert(errorMessage);
-        }
+      let response;
+      if (isLogin) {
+        response = await fetch(
+          "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAvBSC-wnMSr4LTyhMGqXtQdczeBxPzacw",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              email,
+              password,
+              returnSecureToken: true,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } else {
+        response = await fetch(
+          "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAvBSC-wnMSr4LTyhMGqXtQdczeBxPzacw",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              email,
+              password,
+              returnSecureToken: true,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
       }
 
-      console.log(response);
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.error.message);
+      }
+
+      const data = await response.json();
+      const token = data.idToken;
+      console.log(token);
+      setIsLoggedIn(true);
     } catch (error) {
-      console.log(error.message);
+      alert(error.message);
     }
-    setSendingSignUpRequest(false);
+    setIsLoading(false);
   };
-
-  // const handleSignin = async (event) => {
-  //   event.preventDefault();
-  //   const email = emailRef.current.value;
-  //   const password = passwordRef.current.value;
-
-  //   try {
-  //     const response = await fetch(
-  //       "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAvBSC-wnMSr4LTyhMGqXtQdczeBxPzacw",
-  //       {
-  //         method: "POST",
-  //         body: JSON.stringify({ email, password, returnSecureToken: true }),
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     console.log(response);
-  //   } catch (error) {
-  //     console.log(error.message);
-  //   }
-  //   setSendingSignUpRequest(false);
-  // };
-
-  const loading = <p className={classes.loading}>Sending Request...</p>;
 
   return (
     <section className={classes.auth}>
       <h1>{isLogin ? "Login" : "Sign Up"}</h1>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className={classes.control}>
           <label htmlFor="email">Your Email</label>
-          <input type="email" id="email" required ref={emailRef} />
+          <input type="email" ref={emailRef} id="email" required />
         </div>
         <div className={classes.control}>
           <label htmlFor="password">Your Password</label>
-          <input type="password" id="password" required ref={passwordRef} />
+          <input type="password" ref={passwordRef} id="password" required />
         </div>
         <div>
-          {!sendingSignUpRequest && isLogin && (
-            <Button variant="light">Login</Button>
-          )}
-          {!sendingSignUpRequest && !isLogin && (
-            <Button variant="light" onClick={handleCreateAccount}>
-              Sign Up
+          {isLoading ? (
+            <p className={classes.loading}>Sending Request...</p>
+          ) : (
+            <Button variant="light" type="submit">
+              {isLogin ? "Login" : "Sign up"}
             </Button>
           )}
-          {sendingSignUpRequest && !isLogin && loading}
         </div>
         <div className={classes.actions}>
           <button
