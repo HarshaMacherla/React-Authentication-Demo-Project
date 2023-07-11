@@ -28,6 +28,11 @@ export const AuthContextProvider = (props) => {
     logout: handleLogout,
   };
 
+  setTimeout(() => {
+    if (token) {
+      localStorage.removeItem("token");
+    }
+  }, 300000);
   return (
     <AuthContext.Provider value={contextValue}>
       {props.children}
