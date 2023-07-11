@@ -53,9 +53,7 @@ const AuthForm = () => {
       }
 
       const data = await response.json();
-      const token = data.idToken;
-      console.log(token);
-      authCxt.login(token);
+      authCxt.login(data.idToken);
     } catch (error) {
       alert(error.message);
     }
