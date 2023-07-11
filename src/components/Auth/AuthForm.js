@@ -1,9 +1,11 @@
-import { useState, useRef } from "react";
-
+import { useState, useRef, useContext, useEffect } from "react";
+import LoginContext from "../store/login-context";
 import classes from "./AuthForm.module.css";
 import { Button } from "react-bootstrap";
 
-const AuthForm = ({ isLoggedIn, setIsLoggedIn }) => {
+const AuthForm = ({ setIsLoggedIn }) => {
+  const { handleTokenAdd } = useContext(LoginContext);
+
   const [isLogin, setIsLogin] = useState(true);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +65,7 @@ const AuthForm = ({ isLoggedIn, setIsLoggedIn }) => {
 
       const data = await response.json();
       const token = data.idToken;
+      localStorage.setItem("token", JSON.stringify(token));
       console.log(token);
       setIsLoggedIn(true);
     } catch (error) {
@@ -70,6 +73,10 @@ const AuthForm = ({ isLoggedIn, setIsLoggedIn }) => {
     }
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    handleTokenAdd(localStorage.getItem("token"));
+  }, [handleTokenAdd]);
 
   return (
     <section className={classes.auth}>
