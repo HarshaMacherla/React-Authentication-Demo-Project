@@ -1,15 +1,11 @@
-import { Link } from "react-router-dom";
-import LoginContext from "../store/login-context";
-import classes from "./MainNavigation.module.css";
 import { useContext } from "react";
+import { Link } from "react-router-dom";
+import classes from "./MainNavigation.module.css";
+import AuthContext from "../../store/auth-context";
 
-const MainNavigation = (props) => {
-  const { handleTokenRemove } = useContext(LoginContext);
-
-  const handleLogout = () => {
-    handleTokenRemove();
-    props.setIsLoggedIn(false);
-  };
+const MainNavigation = () => {
+  const authCxt = useContext(AuthContext);
+  const isLoggedIn = authCxt.isLoggedIn;
 
   return (
     <header className={classes.header}>
@@ -18,15 +14,23 @@ const MainNavigation = (props) => {
       </Link>
       <nav>
         <ul>
-          <li>{!props.isLoggedIn && <Link to="/auth">Login</Link>}</li>
-          <li>{props.isLoggedIn && <Link to="/profile">Profile</Link>}</li>
-          <li>
-            <Link to="/auth">
-              {props.isLoggedIn && (
-                <button onClick={handleLogout}>Logout</button>
-              )}
-            </Link>
-          </li>
+          {!isLoggedIn && (
+            <li>
+              <Link to="/auth">Login</Link>
+            </li>
+          )}
+          {isLoggedIn && (
+            <li>
+              <Link to="/profile">Profile</Link>
+            </li>
+          )}
+          {isLoggedIn && (
+            <li>
+              <Link to="/auth">
+                <button onClick={() => authCxt.logout()}>Logout</button>
+              </Link>
+            </li>
+          )}
         </ul>
       </nav>
     </header>

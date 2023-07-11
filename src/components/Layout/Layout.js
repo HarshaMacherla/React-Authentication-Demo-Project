@@ -5,10 +5,7 @@ import MainNavigation from "./MainNavigation";
 const Layout = (props) => {
   return (
     <Fragment>
-      <MainNavigation
-        isLoggedIn={props.isLoggedIn}
-        setIsLoggedIn={props.setIsLoggedIn}
-      />
+      <MainNavigation />
       <main>{props.children}</main>
     </Fragment>
   );
