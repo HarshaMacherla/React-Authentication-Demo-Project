@@ -1,29 +1,32 @@
-import { Switch, Route } from "react-router-dom";
-
+import { Switch, Route, Redirect } from "react-router-dom";
+import AuthContext from "./store/auth-context";
 import Layout from "./components/Layout/Layout";
 import UserProfile from "./components/Profile/UserProfile";
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
-import { useState } from "react";
+import { useContext } from "react";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const authCxt = useContext(AuthContext);
 
   return (
-    <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} exact>
+    <Layout>
       <Switch>
         <Route path="/" exact>
           <HomePage />
         </Route>
-        <Route path="/auth">
-          <AuthPage
-            isLoggedIn={isLoggedIn}
-            setIsLoggedIn={setIsLoggedIn}
-            exact
-          />
+        {!authCxt.isLoggedIn && (
+          <Route path="/auth" exact>
+            <AuthPage />
+          </Route>
+        )}
+
+        <Route path="/profile" exact>
+          {authCxt.isLoggedIn && <UserProfile />}
+          {!authCxt.isLoggedIn && <Redirect to="/auth" />}
         </Route>
-        <Route path="/profile">
-          <UserProfile exact />
+        <Route path="*">
+          <Redirect to="/" />
         </Route>
       </Switch>
     </Layout>

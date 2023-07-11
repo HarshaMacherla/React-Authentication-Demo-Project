@@ -54,6 +54,7 @@ const AuthForm = () => {
 
       const data = await response.json();
       authCxt.login(data.idToken);
+      localStorage.setItem("token", JSON.stringify(data.idToken));
     } catch (error) {
       alert(error.message);
     }
